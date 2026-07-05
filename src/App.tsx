@@ -6,18 +6,41 @@ import SkillsSection from './components/SkillsSection';
 import CTASection from './components/CTASection';
 import AuthModal from './components/AuthModal';
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'signin' | 'signup'>('signup');
+  const [user, setUser] = useState<User | null>(null);
 
   function openModal(mode: 'signin' | 'signup') {
     setModalMode(mode);
     setIsModalOpen(true);
   }
 
+  function handleSuccess(userData: User, userToken: string) {
+    setUser(userData);
+    localStorage.setItem('token', userToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+  }
+
+  function handleLogout() {
+    setUser(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-800 via-purple-700 to-slate-800 text-white">
-      <Navbar />
+      <Navbar
+        user={user}
+        onOpenModal={openModal}
+        onLogout={handleLogout}
+      />
       <HeroSection onOpenModal={openModal} />
       <FeaturesSection />
       <SkillsSection />
@@ -26,6 +49,7 @@ function App() {
         isOpen={isModalOpen}
         mode={modalMode}
         onClose={() => setIsModalOpen(false)}
+        onSuccess={handleSuccess}
       />
     </div>
   );

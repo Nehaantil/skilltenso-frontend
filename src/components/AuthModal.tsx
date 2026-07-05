@@ -1,44 +1,59 @@
 import React, { useState } from 'react';
+import { signupAPI, signinAPI } from '../api/auth';
 
 interface AuthModalProps {
   isOpen: boolean;
   mode: 'signin' | 'signup';
   onClose: () => void;
+  onSuccess: (user: any, token: string) => void;
 }
 
-function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
+function AuthModal({ isOpen, mode, onClose, onSuccess }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState(mode);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
-    if (activeTab === 'signup') {
-      if (!name || !email || !password || !confirm) {
-        setError('Please fill all fields!');
-        return;
+    try {
+      if (activeTab === 'signup') {
+        if (!name || !email || !password || !confirm) {
+          setError('Please fill all fields!');
+          setLoading(false);
+          return;
+        }
+        if (password !== confirm) {
+          setError('Passwords do not match!');
+          setLoading(false);
+          return;
+        }
+        const data = await signupAPI(name, email, password);
+        onSuccess(data.user, data.token);
+        onClose();
+      } else {
+        if (!email || !password) {
+          setError('Please fill all fields!');
+          setLoading(false);
+          return;
+        }
+        const data = await signinAPI(email, password);
+        onSuccess(data.user, data.token);
+        onClose();
       }
-      if (password !== confirm) {
-        setError('Passwords do not match!');
-        return;
-      }
-      alert(`Account created for ${name}!`);
-      onClose();
-    } else {
-      if (!email || !password) {
-        setError('Please fill all fields!');
-        return;
-      }
-      alert(`Welcome back!`);
-      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Something went wrong!');
     }
+
+    setLoading(false);
   }
 
   return (
@@ -97,9 +112,7 @@ function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             {activeTab === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Full Name
-                </label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
                 <input
                   type="text"
                   value={name}
@@ -111,9 +124,7 @@ function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Email Address
-              </label>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
               <input
                 type="email"
                 value={email}
@@ -124,9 +135,7 @@ function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
               <input
                 type="password"
                 value={password}
@@ -138,9 +147,7 @@ function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
 
             {activeTab === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Confirm Password
-                </label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
                 <input
                   type="password"
                   value={confirm}
@@ -153,9 +160,10 @@ function AuthModal({ isOpen, mode, onClose }: AuthModalProps) {
 
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/40 transition-all mt-2"
+              disabled={loading}
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/40 transition-all mt-2 disabled:opacity-50"
             >
-              {activeTab === 'signup' ? 'Create Account' : 'Sign In'}
+              {loading ? 'Please wait...' : activeTab === 'signup' ? 'Create Account' : 'Sign In'}
             </button>
           </form>
         </div>
