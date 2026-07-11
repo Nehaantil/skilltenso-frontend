@@ -5,6 +5,7 @@ import FeaturesSection from './components/FeaturesSection';
 import SkillsSection from './components/SkillsSection';
 import CTASection from './components/CTASection';
 import AuthModal from './components/AuthModal';
+import VideoSession from './components/VideoSession';
 
 interface User {
   id: number;
@@ -16,6 +17,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'signin' | 'signup'>('signup');
   const [user, setUser] = useState<User | null>(null);
+  const [showVideo, setShowVideo] = useState(false);
 
   function openModal(mode: 'signin' | 'signup') {
     setModalMode(mode);
@@ -30,8 +32,13 @@ function App() {
 
   function handleLogout() {
     setUser(null);
+    setShowVideo(false);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+  }
+
+  if (showVideo && user) {
+    return <VideoSession user={user} onExit={() => setShowVideo(false)} />;
   }
 
   return (
@@ -40,6 +47,7 @@ function App() {
         user={user}
         onOpenModal={openModal}
         onLogout={handleLogout}
+        onStartSession={() => setShowVideo(true)}
       />
       <HeroSection onOpenModal={openModal} />
       <FeaturesSection />

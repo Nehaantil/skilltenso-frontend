@@ -10,9 +10,10 @@ interface NavbarProps {
   user: User | null;
   onOpenModal: (mode: 'signin' | 'signup') => void;
   onLogout: () => void;
+  onStartSession: () => void;
 }
 
-function Navbar({ user, onOpenModal, onLogout }: NavbarProps) {
+function Navbar({ user, onOpenModal, onLogout, onStartSession }: NavbarProps) {
   return (
     <nav className="flex justify-between items-center px-6 py-6">
       <div className="flex items-center gap-3">
@@ -29,6 +30,12 @@ function Navbar({ user, onOpenModal, onLogout }: NavbarProps) {
             <span className="text-gray-300 text-sm">
               Hey, {user.name}! 👋
             </span>
+            <button
+              onClick={onStartSession}
+              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-500 rounded-lg hover:shadow-lg hover:shadow-purple-500/40 transition-all"
+            >
+              📹 Start Session
+            </button>
             <button
               onClick={onLogout}
               className="px-6 py-2 border border-white/20 rounded-lg hover:border-red-400 hover:text-red-400 transition-all"
