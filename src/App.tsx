@@ -6,6 +6,7 @@ import SkillsSection from './components/SkillsSection';
 import CTASection from './components/CTASection';
 import AuthModal from './components/AuthModal';
 import VideoSession from './components/VideoSession';
+import Dashboard from './components/Dashboard';
 
 interface User {
   id: number;
@@ -18,6 +19,7 @@ function App() {
   const [modalMode, setModalMode] = useState<'signin' | 'signup'>('signup');
   const [user, setUser] = useState<User | null>(null);
   const [showVideo, setShowVideo] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
 
   function openModal(mode: 'signin' | 'signup') {
     setModalMode(mode);
@@ -26,6 +28,7 @@ function App() {
 
   function handleSuccess(userData: User, userToken: string) {
     setUser(userData);
+    setShowDashboard(true);
     localStorage.setItem('token', userToken);
     localStorage.setItem('user', JSON.stringify(userData));
   }
@@ -33,12 +36,23 @@ function App() {
   function handleLogout() {
     setUser(null);
     setShowVideo(false);
+    setShowDashboard(false);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
 
   if (showVideo && user) {
     return <VideoSession user={user} onExit={() => setShowVideo(false)} />;
+  }
+
+  if (showDashboard && user) {
+    return (
+      <Dashboard
+        user={user}
+        onStartSession={() => setShowVideo(true)}
+        onLogout={handleLogout}
+      />
+    );
   }
 
   return (
