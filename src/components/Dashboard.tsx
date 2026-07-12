@@ -1,5 +1,5 @@
- 
 import React, { useState } from 'react';
+import { generateSummaryAPI } from '../api/ai';
 
 interface User {
   id: number;
@@ -19,6 +19,8 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
   const [review, setReview] = useState('');
   const [showRating, setShowRating] = useState(false);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
+  const [aiSummary, setAiSummary] = useState('');
+  const [loadingSummary, setLoadingSummary] = useState(false);
 
   const stats = [
     { label: 'Sessions', value: '3', icon: '📹' },
@@ -40,6 +42,17 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
     { icon: '🔥', title: 'On Fire', desc: 'Complete 10 sessions', unlocked: false },
   ];
 
+  async function handleGenerateSummary() {
+    setLoadingSummary(true);
+    try {
+      const data = await generateSummaryAPI('Priya Sharma', 'Web Development', 45, 12);
+      setAiSummary(data.summary);
+    } catch (error) {
+      setAiSummary('Could not generate summary. Please try again!');
+    }
+    setLoadingSummary(false);
+  }
+
   function submitRating() {
     if (rating === 0) return;
     setRatingSubmitted(true);
@@ -48,7 +61,7 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-800 via-purple-700 to-slate-800 text-white">
-      
+
       {/* Navbar */}
       <nav className="flex justify-between items-center px-6 py-4 border-b border-white/10">
         <div className="flex items-center gap-3">
@@ -61,16 +74,10 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
         </div>
         <div className="flex gap-3 items-center">
           <span className="text-gray-300 text-sm">Hey, {user.name}! 👋</span>
-          <button
-            onClick={onStartSession}
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 rounded-lg hover:shadow-lg transition-all text-sm font-semibold"
-          >
+          <button onClick={onStartSession} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 rounded-lg hover:shadow-lg transition-all text-sm font-semibold">
             📹 Start Session
           </button>
-          <button
-            onClick={onLogout}
-            className="px-4 py-2 border border-white/20 rounded-lg hover:border-red-400 hover:text-red-400 transition-all text-sm"
-          >
+          <button onClick={onLogout} className="px-4 py-2 border border-white/20 rounded-lg hover:border-red-400 hover:text-red-400 transition-all text-sm">
             Logout
           </button>
         </div>
@@ -93,6 +100,27 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
               <div className="text-gray-400 text-sm">{stat.label}</div>
             </div>
           ))}
+        </div>
+
+        {/* AI Summary Section */}
+        <div className="bg-slate-800/60 border border-purple-500/30 rounded-xl p-6 mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">🤖 AI Session Summary</h2>
+            <button
+              onClick={handleGenerateSummary}
+              disabled={loadingSummary}
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg hover:shadow-lg transition-all text-sm font-semibold disabled:opacity-50"
+            >
+              {loadingSummary ? '⏳ Generating...' : '✨ Generate Summary'}
+            </button>
+          </div>
+          {aiSummary ? (
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+              <p className="text-gray-200 leading-relaxed">{aiSummary}</p>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-sm">Click "Generate Summary" to get an AI-powered summary of your last session!</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -121,7 +149,6 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
                 ))}
               </div>
 
-              {/* Rate Session Button */}
               {!ratingSubmitted && (
                 <button
                   onClick={() => setShowRating(true)}
@@ -150,9 +177,7 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
               <h3 className="text-xl font-semibold">{user.name}</h3>
               <p className="text-gray-400 text-sm mb-3">{user.email}</p>
               <div className="flex justify-center gap-1 mb-4">
-                {'⭐⭐⭐⭐⭐'.split('').map((star, i) => (
-                  <span key={i} className="text-yellow-400">{star}</span>
-                ))}
+                <span className="text-yellow-400">⭐⭐⭐⭐⭐</span>
               </div>
               <button
                 onClick={onStartSession}
@@ -180,7 +205,6 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -191,8 +215,6 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
           <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-600/30 rounded-2xl w-full max-w-md mx-4 p-8">
             <h2 className="text-2xl font-bold text-center mb-2">Rate Your Session</h2>
             <p className="text-gray-400 text-center text-sm mb-6">How was your session with Priya Sharma?</p>
-
-            {/* Stars */}
             <div className="flex justify-center gap-2 mb-6">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -206,8 +228,6 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
                 </button>
               ))}
             </div>
-
-            {/* Review */}
             <textarea
               value={review}
               onChange={(e) => setReview(e.target.value)}
@@ -215,19 +235,12 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
               rows={3}
               className="w-full px-4 py-3 bg-slate-900/80 border border-slate-600/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 text-sm mb-4 resize-none"
             />
-
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowRating(false)}
-                className="flex-1 py-3 border border-slate-600 rounded-lg hover:border-red-400 hover:text-red-400 transition-all"
-              >
+              <button onClick={() => setShowRating(false)} className="flex-1 py-3 border border-slate-600 rounded-lg hover:border-red-400 hover:text-red-400 transition-all">
                 Cancel
               </button>
-              <button
-                onClick={submitRating}
-                className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-purple-500 rounded-lg hover:shadow-lg transition-all font-semibold"
-              >
-                Submit Rating ⭐
+              <button onClick={submitRating} className="flex-1 py-3 bg-gradient-to-r from-purple-600 to-purple-500 rounded-lg hover:shadow-lg transition-all font-semibold">
+                Submit ⭐
               </button>
             </div>
           </div>
