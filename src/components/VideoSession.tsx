@@ -24,7 +24,7 @@ interface Note {
   createdAt: string;
 }
 
-const socket = io('http://localhost:5001');
+const socket = io('https://skilltenso.onrender.com');
 
 function VideoSession({ user, onExit }: VideoSessionProps) {
   const [isMuted, setIsMuted] = useState(false);
