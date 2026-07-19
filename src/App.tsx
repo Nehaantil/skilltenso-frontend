@@ -56,7 +56,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-purple-700 to-slate-800 text-white">
+    <div className="min-h-screen text-white hero-gradient">
       <Navbar
         user={user}
         onOpenModal={openModal}
