@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { generateSummaryAPI } from '../api/ai';
 import Quiz from './Quiz';import Certificate from './Certificate';
+import Notifications from './Notifications';
 
 
 interface User {
@@ -116,6 +117,7 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
             <span className="text-gray-300 text-sm px-3 py-1 rounded-full"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
               Hey, {user.name}! 👋
+              <Notifications userId={user.id} />
             </span>
             <button onClick={onStartSession}
               className="px-4 py-2 rounded-xl text-sm font-semibold"
