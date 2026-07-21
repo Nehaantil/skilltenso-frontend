@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { generateSummaryAPI } from '../api/ai';
 import Quiz from './Quiz';import Certificate from './Certificate';
 import Notifications from './Notifications';
+import Analytics from './Analytics';
 
 
 interface User {
@@ -29,6 +30,7 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
   const [quizData, setQuizData] = useState<any>(null);
   const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   const stats = [
     { label: 'Sessions', value: '3', icon: '📹' },
@@ -101,6 +103,9 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
     duration="45 minutes"
     onClose={() => setShowCertificate(false)}
   />
+)}
+{showAnalytics && (
+  <Analytics onClose={() => setShowAnalytics(false)} />
 )}
 
       <div className="min-h-screen text-white hero-gradient">
@@ -198,6 +203,22 @@ function Dashboard({ user, onStartSession, onLogout }: DashboardProps) {
       style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)', color: 'white' }}
     >
       🏆 Get Certificate
+    </button>
+  </div>
+</div>
+{/* Analytics Section */}
+<div className="glass-card p-6 mb-8">
+  <div className="flex justify-between items-center">
+    <div>
+      <h2 className="text-xl font-semibold text-white">📊 Analytics</h2>
+      <p className="text-gray-400 text-sm mt-1">View your learning journey insights and charts!</p>
+    </div>
+    <button
+      onClick={() => setShowAnalytics(true)}
+      className="px-4 py-2 rounded-lg text-sm font-semibold"
+      style={{ background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', color: 'white' }}
+    >
+      📊 View Analytics
     </button>
   </div>
 </div>
